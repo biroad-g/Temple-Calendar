@@ -2,14 +2,16 @@ import 'dart:math' as dart_math;
 
 // 六曜計算サービス
 // 修正履歴:
+// v4 - 2024-2025年以外でも正しい六曜を返すよう修正
+//      根本原因: 閏月(うるうづき)がある年は月シーケンス番号が
+//      正しい旧暦月番号とずれてしまう問題を修正。
+//      解決策: 閏月テーブル(_leapMonthTable)を追加し、
+//      各月の正しい旧暦月番号を計算した月シーケンスを使用。
 // v3 - 2027/2028年の朔JST計算ずれ問題を修正
 //      旧暦元旦をJD値テーブル（公式データ基準）で管理し、
 //      各月の朔日JDシーケンスを元旦JDを起点に計算する方式に変更。
-//      これにより朔が深夜0時直後に起きる年（2027/2028等）でも正確な
-//      旧暦月・日を算出できる。
 // v2 - 旧暦月の計算を各年の旧暦元旦(k値)を基準に修正
 //      六曜計算式を (lunarMonth + lunarDay - 2) % 6 に変更
-//      2000〜2050年の旧暦元旦k値テーブルを追加
 
 class RokuyoService {
   static const List<String> rokuyoNames = [
@@ -75,6 +77,33 @@ class RokuyoService {
     2050: 2469829.5, // 2050/01/23
   };
 
+  /// 旧暦閏月テーブル: 年 → 閏月番号 (0=閏月なし)
+  /// 国立天文台の公式データに基づく
+  /// 閏月は旧暦でその月番号の月が2回繰り返される
+  /// 例: 2023年は閏二月 → 旧暦2023年に2月が2回ある
+  static const Map<int, int> _leapMonthTable = {
+    1998: 5,  // 閏五月
+    2001: 4,  // 閏四月
+    2004: 2,  // 閏二月
+    2006: 7,  // 閏七月
+    2009: 5,  // 閏五月
+    2012: 4,  // 閏四月
+    2014: 9,  // 閏九月
+    2017: 6,  // 閏六月
+    2020: 4,  // 閏四月
+    2023: 2,  // 閏二月
+    2025: 6,  // 閏六月
+    2028: 5,  // 閏五月
+    2031: 3,  // 閏三月
+    2033: 11, // 閏十一月
+    2036: 6,  // 閏六月
+    2039: 5,  // 閏五月
+    2042: 2,  // 閏二月
+    2044: 7,  // 閏七月
+    2047: 5,  // 閏五月
+    2050: 3,  // 閏三月
+  };
+
   /// 六曜インデックスを取得
   /// 計算式: (旧暦月 + 旧暦日 - 2) % 6
   /// 旧暦1月1日=先勝(0), 2月1日=友引(1), 3月1日=先負(2), ...
@@ -122,6 +151,7 @@ class RokuyoService {
   /// アルゴリズム:
   /// 1. 対象年（または前年）の旧暦元旦JD（公式テーブル値）を起点にする
   /// 2. 元旦の朔kを特定し、そこから各月の朔JDシーケンスを構築
+  ///    (閏月テーブルを参照し、正しい旧暦月番号を割り当て)
   /// 3. 対象JDが属する朔区間を特定して旧暦月・日を計算
   /// 注: 元旦の朔日はテーブル値を優先することで、朔が深夜0時直後の場合の
   ///     JST変換ずれ問題（2027/2028等）を回避する
@@ -132,9 +162,9 @@ class RokuyoService {
       if (months == null) continue;
 
       for (int i = 0; i < months.length - 1; i++) {
-        if (months[i] <= jd && jd < months[i + 1]) {
-          final lunarMonth = i + 1;
-          final lunarDay = (jd - months[i]).floor() + 1;
+        if (months[i][0] <= jd && jd < months[i + 1][0]) {
+          final lunarMonth = months[i][1].toInt();
+          final lunarDay = (jd - months[i][0]).floor() + 1;
           return [lunarMonth, lunarDay];
         }
       }
@@ -143,8 +173,9 @@ class RokuyoService {
   }
 
   /// 指定年の旧暦元旦を起点とする朔日JDシーケンスを構築
-  /// 戻り値: 旧暦1月〜15月の朔日JDリスト（null = テーブルなし）
-  static List<double>? _buildMonthSequence(int year) {
+  /// 戻り値: [朔日JD, 旧暦月番号] のリスト（閏月を正しく考慮）
+  /// null = テーブルなし
+  static List<List<double>>? _buildMonthSequence(int year) {
     final jdCny = _chineseNewYearJD[year];
     if (jdCny == null) return null;
 
@@ -161,11 +192,17 @@ class RokuyoService {
       }
     }
 
-    // 朔日JDシーケンスを構築
-    final List<double> months = [];
+    // 閏月情報を取得
+    final leapMonth = _leapMonthTable[year] ?? 0;
+
+    // 朔日JDシーケンスを構築 (各要素: [朔日JD, 旧暦月番号])
+    final List<List<double>> months = [];
 
     // 旧暦1月（元旦）: テーブル値を使用（計算値でなく公式値）
-    months.add(jdCny);
+    months.add([jdCny, 1.0]);
+
+    int currentLunarMonth = 1;
+    bool leapInserted = false;
 
     // 旧暦2月以降: k値から計算したJST朔日JD
     for (int i = 1; i <= 14; i++) {
@@ -174,9 +211,28 @@ class RokuyoService {
       // JDE(TT) → JST日付のJD
       double jdJst = jde + 9.0 / 24.0;
       // JSTでの日付（午前0時）に対応するJDを計算
-      // JDは正午基準なので: floor(jdJst + 0.5) - 0.5 が 0時UTCのJD
       double newMoonJd = (jdJst + 0.5).floorToDouble() - 0.5;
-      months.add(newMoonJd);
+
+      // 旧暦月番号を決定
+      int lunarMonth;
+      if (!leapInserted && leapMonth > 0 && currentLunarMonth == leapMonth) {
+        // 閏月: 前月と同じ月番号が2回続く
+        lunarMonth = currentLunarMonth;
+        leapInserted = true;
+      } else {
+        // 通常月
+        if (i == 1) {
+          currentLunarMonth = 2;
+        } else {
+          currentLunarMonth++;
+        }
+        if (currentLunarMonth > 12) {
+          currentLunarMonth = 1; // 翌年の1月
+        }
+        lunarMonth = currentLunarMonth;
+      }
+
+      months.add([newMoonJd, lunarMonth.toDouble()]);
     }
 
     return months;

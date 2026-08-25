@@ -36,9 +36,5 @@ if (!window._flutter) {
 }
 _flutter.buildConfig = {"engineRevision":"c29809135135e262a912cf583b2c90deb9ded610","useLocalCanvasKit":true,"builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}]};
 
-_flutter.loader.load({
-  serviceWorkerSettings: {
-    serviceWorkerVersion: "1787621353",
-    timeoutMillis: 0
-  }
-});
+// Flutter起動（SWはindex.htmlで独自登録済み）
+_flutter.loader.load({});

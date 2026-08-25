@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>プライバシーポリシー - Temple Calendar coyomi</title>
+  <style>
+    :root {
+      --navy-dark:   #0D1B2A;
+      --navy-medium: #1B2A3E;
+      --navy-light:  #243B55;
+      --gold:        #D4AF37;
+      --gold-light:  #E8C96A;
+      --white:       #FFFFFF;
+      --off-white:   #F5F0E8;
+      --text-light:  #CCCCCC;
+      --text-muted:  #888888;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--navy-dark);
+      color: var(--text-light);
+      font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    /* ── ヘッダー ── */
+    header {
+      background-color: var(--navy-medium);
+      border-bottom: 2px solid var(--gold);
+      padding: 24px 20px 20px;
+      text-align: center;
+    }
+    header .lotus { font-size: 36px; display: block; margin-bottom: 8px; }
+    header h1 {
+      color: var(--gold);
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+    }
+    header .app-name {
+      color: var(--white);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    header .updated {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    /* ── メインコンテンツ ── */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* ── イントロカード ── */
+    .intro-card {
+      background-color: var(--navy-medium);
+      border: 1px solid rgba(212,175,55,0.4);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+    .intro-card p { color: var(--text-light); font-size: 14px; }
+
+    /* ── セクション ── */
+    section {
+      background-color: var(--navy-medium);
+      border: 1px solid var(--navy-light);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+    }
+    section.highlight {
+      border-color: rgba(212,175,55,0.5);
+    }
+
+    h2 {
+      color: var(--gold);
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--navy-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    p { color: var(--text-light); margin-bottom: 10px; }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol {
+      padding-left: 20px;
+      color: var(--text-light);
+    }
+    li { margin-bottom: 6px; }
+
+    /* ── 強調バッジ ── */
+    .badge-no-collect {
+      display: inline-block;
+      background: rgba(67,160,71,0.2);
+      border: 1px solid rgba(67,160,71,0.5);
+      color: #66BB6A;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    /* ── 情報テーブル ── */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .info-table th, .info-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--navy-light);
+      text-align: left;
+    }
+    .info-table th {
+      background-color: var(--navy-light);
+      color: var(--gold-light);
+      width: 38%;
+      font-weight: bold;
+    }
+    .info-table td { color: var(--text-light); }
+
+    /* ── 連絡先カード ── */
+    .contact-card {
+      background: var(--navy-light);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 12px;
+    }
+    .contact-card p { margin: 4px 0; font-size: 14px; }
+    .contact-card a { color: var(--gold); text-decoration: none; }
+    .contact-card a:hover { text-decoration: underline; }
+
+    /* ── フッター ── */
+    footer {
+      background-color: var(--navy-medium);
+      border-top: 1px solid var(--navy-light);
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    footer .gold { color: var(--gold); }
+
+    /* ── レスポンシブ ── */
+    @media (max-width: 520px) {
+      header h1 { font-size: 18px; }
+      section { padding: 18px 16px; }
+      h2 { font-size: 15px; }
+      .info-table th { width: 40%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <span class="lotus">🪷</span>
+  <h1>プライバシーポリシー</h1>
+  <p class="app-name">Temple Calendar coyomi（寺院カレンダー こよみ）</p>
+  <p class="updated">制定日：2025年4月1日　／　最終更新：2025年4月1日</p>
+</header>
+
+<main>
+
+  <!-- イントロ -->
+  <div class="intro-card">
+    <p>
+      本プライバシーポリシー（以下「本ポリシー」）は、
+      <strong style="color:var(--white)">Temple Calendar coyomi</strong>
+      （パッケージ名：<code style="color:var(--gold-light)">com.templecalendar.coyomi.calendar</code>）
+      （以下「本アプリ」）をご利用いただく際の、個人情報および利用データの取り扱いについて説明するものです。
+      本アプリをインストール・使用することにより、本ポリシーに同意いただいたものとみなします。
+    </p>
+  </div>
+
+  <!-- 1. 収集する情報 -->
+  <section class="highlight">
+    <h2>📋 1. 収集する情報について</h2>
+    <span class="badge-no-collect">✅ 個人情報は収集しません</span>
+    <p>
+      本アプリは、ユーザーの氏名・住所・メールアドレス・電話番号などの
+      <strong style="color:var(--white)">個人を特定できる情報（個人情報）を一切収集しません。</strong>
+    </p>
+    <p>本アプリがデバイス内に保存するデータは以下に限られます。</p>
+    <ul>
+      <li>六曜の表示・非表示設定（ON/OFF）</li>
+      <li>個別六曜（大安・友引・先勝・先負・仏滅・赤口）の表示設定</li>
+    </ul>
+    <p>
+      これらのデータはすべて<strong style="color:var(--white)">端末内のローカルストレージ（SharedPreferences）のみ</strong>
+      に保存され、外部サーバーへの送信・共有は行いません。
+    </p>
+  </section>
+
+  <!-- 2. 入力データ -->
+  <section>
+    <h2>🔒 2. 生年月日・命日などの入力データについて</h2>
+    <p>
+      本アプリでは、年齢計算・法事計算の機能において生年月日・命日などの日付を入力していただく場合があります。
+    </p>
+    <p>
+      これらの入力データは<strong style="color:var(--white)">端末内のメモリ上でのみ処理</strong>され、
+      端末外部への送信・保存・共有は一切行いません。
+      アプリを終了すると入力データは消去されます。
+    </p>
+  </section>
+
+  <!-- 3. 外部サービス -->
+  <section>
+    <h2>🌐 3. 外部サービス・インターネット通信</h2>
+    <p>
+      本アプリは<strong style="color:var(--white)">インターネット接続を必要とせず</strong>、
+      外部サービス（Google Analytics・Firebase・広告SDKなど）との通信は行いません。
+    </p>
+    <ul>
+      <li>アナリティクス・トラッキング：<strong style="color:#66BB6A">なし</strong></li>
+      <li>広告表示：<strong style="color:#66BB6A">なし</strong></li>
+      <li>クラッシュレポート：<strong style="color:#66BB6A">なし</strong></li>
+      <li>外部API通信：<strong style="color:#66BB6A">なし</strong></li>
+    </ul>
+  </section>
+
+  <!-- 4. 利用目的 -->
+  <section>
+    <h2>🎯 4. 情報の利用目的</h2>
+    <p>端末内に保存される設定データは、以下の目的のみに使用します。</p>
+    <ol>
+      <li>カレンダー画面での六曜表示設定の保持・復元</li>
+      <li>アプリ起動時のユーザー設定の再現</li>
+    </ol>
+    <p>上記以外の目的で情報を利用することはありません。</p>
+  </section>
+
+  <!-- 5. 第三者提供 -->
+  <section>
+    <h2>🚫 5. 第三者への情報提供</h2>
+    <p>
+      本アプリは、ユーザーに関するいかなる情報も第三者に提供・販売・貸与しません。
+      また、本アプリを通じて収集した情報（設定データ）を、
+      法的義務が生じた場合を除き第三者に開示することはありません。
+    </p>
+  </section>
+
+  <!-- 6. アクセス許可 -->
+  <section>
+    <h2>📱 6. アプリが要求する権限</h2>
+    <p>本アプリが必要とするAndroid権限は以下のとおりです。</p>
+    <table class="info-table">
+      <thead>
+        <tr>
+          <th>権限</th>
+          <th>用途</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>なし（権限不要）</td>
+          <td>本アプリはいかなる特別権限も要求しません</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px">
+      カレンダー・連絡先・カメラ・位置情報・通知などへのアクセス権限は一切要求しません。
+    </p>
+  </section>
+
+  <!-- 7. 子どものプライバシー -->
+  <section>
+    <h2>👶 7. 子どものプライバシー</h2>
+    <p>
+      本アプリは13歳未満のお子様から意図的に個人情報を収集することはありません。
+      本アプリは寺院・法要の実務補助を目的としており、
+      年齢を問わず安心してご利用いただけます。
+    </p>
+  </section>
+
+  <!-- 8. セキュリティ -->
+  <section>
+    <h2>🛡️ 8. セキュリティ</h2>
+    <p>
+      端末内に保存する設定データは、Androidの標準的なSharedPreferencesの仕組みを使用しており、
+      他のアプリからアクセスされることはありません。
+      ただし、端末自体のセキュリティ（パスコード設定など）については、
+      ユーザー自身でご管理ください。
+    </p>
+  </section>
+
+  <!-- 9. ポリシーの変更 -->
+  <section>
+    <h2>📝 9. プライバシーポリシーの変更</h2>
+    <p>
+      本ポリシーは、法令の改正やアプリ機能の変更に応じて、予告なく改訂する場合があります。
+      重要な変更がある場合は、アプリのアップデートを通じてお知らせします。
+      最新のポリシーは常に本ページに掲載されます。
+    </p>
+  </section>
+
+  <!-- 10. アプリ情報 -->
+  <section>
+    <h2>ℹ️ 10. アプリの基本情報</h2>
+    <table class="info-table">
+      <tbody>
+        <tr>
+          <th>アプリ名</th>
+          <td>Temple Calendar coyomi</td>
+        </tr>
+        <tr>
+          <th>パッケージ名</th>
+          <td>com.templecalendar.coyomi.calendar</td>
+        </tr>
+        <tr>
+          <th>対応OS</th>
+          <td>Android</td>
+        </tr>
+        <tr>
+          <th>開発・配信</th>
+          <td>Temple Calendar coyomi 開発チーム</td>
+        </tr>
+        <tr>
+          <th>主な機能</th>
+          <td>六曜カレンダー・年齢計算・年忌法要・49日/100ヶ日計算</td>
+        </tr>
+        <tr>
+          <th>データ保存場所</th>
+          <td>端末内のみ（外部送信なし）</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 11. お問い合わせ -->
+  <section class="highlight">
+    <h2>📧 11. お問い合わせ</h2>
+    <p>
+      本プライバシーポリシーに関するご質問・ご意見は、
+      以下までお気軽にお問い合わせください。
+    </p>
+    <div class="contact-card">
+      <p><strong style="color:var(--gold-light)">アプリ名：</strong>Temple Calendar coyomi</p>
+      <p><strong style="color:var(--gold-light)">Google Play：</strong>
+        <a href="https://play.google.com/store/apps/details?id=com.templecalendar.coyomi.calendar" target="_blank" rel="noopener">
+          com.templecalendar.coyomi.calendar
+        </a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- フッター -->
+<footer>
+  <p class="gold">🪷 Temple Calendar coyomi</p>
+  <p style="margin-top:6px">© 2025 Temple Calendar coyomi 開発チーム. All Rights Reserved.</p>
+  <p style="margin-top:4px">本アプリは日本の仏教寺院の法務をサポートするために開発されました。</p>
+</footer>
+
+</body>
+</html>

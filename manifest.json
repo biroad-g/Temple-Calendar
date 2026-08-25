@@ -1,0 +1,36 @@
+{
+    "name": "寺院カレンダー",
+    "short_name": "寺院暦",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#EFEBE9",
+    "theme_color": "#5D4037",
+    "description": "六曜・法事カレンダー - 通信なしでご利用いただけます",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "lang": "ja",
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

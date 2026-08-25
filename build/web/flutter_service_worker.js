@@ -37,31 +37,46 @@ const RESOURCES = {"canvaskit/chromium/canvaskit.js": "5e27aae346eee469027c80af0
 "manifest.json": "9c9070313dd19a3fe35e0adb591e8c3d",
 "privacy_policy.html": "7512f787c73c93736f0a9bd3e3a52ebd"};
 // The application shell files that are downloaded before a service worker can
-// start.
-const CORE = ["main.dart.js",
-"index.html",
-"flutter_bootstrap.js",
-"assets/AssetManifest.bin.json",
-"assets/FontManifest.json"];
+// start. Includes CanvasKit WASM for complete offline support.
+const CORE = [
+  "main.dart.js",
+  "index.html",
+  "flutter_bootstrap.js",
+  "flutter.js",
+  "assets/AssetManifest.bin.json",
+  "assets/FontManifest.json",
+  "assets/AssetManifest.json",
+  "assets/fonts/MaterialIcons-Regular.otf",
+  "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf",
+  "canvaskit/canvaskit.js",
+  "canvaskit/canvaskit.wasm",
+  "canvaskit/chromium/canvaskit.js",
+  "canvaskit/chromium/canvaskit.wasm",
+  "canvaskit/skwasm.js",
+  "canvaskit/skwasm.wasm",
+  "canvaskit/skwasm_heavy.js",
+  "canvaskit/skwasm_heavy.wasm",
+  "manifest.json",
+  "favicon.png"
+];
 
-// During install, the TEMP cache is populated with ALL application files
-// for complete offline-first support.
+// During install, ALL resources are pre-cached for complete offline support.
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
-      // まずCOREファイルをキャッシュ
+      // COREファイルを必須キャッシュ（失敗するとSWインストール失敗）
       return cache.addAll(
         CORE.map((value) => new Request(value, {'cache': 'reload'}))
       ).then(() => {
-        // 続いて全リソースを事前キャッシュ（オフライン完全対応）
-        var allResources = Object.keys(RESOURCES).filter(
+        // 残りのリソース（symbols等）もキャッシュ（失敗しても続行）
+        var remainingResources = Object.keys(RESOURCES).filter(
           key => key !== '/' && !CORE.includes(key)
         );
         return Promise.allSettled(
-          allResources.map(key =>
+          remainingResources.map(key =>
             cache.add(new Request(key, {'cache': 'reload'})).catch(err => {
-              console.warn('Pre-cache failed for: ' + key, err);
+              console.warn('Pre-cache skipped: ' + key, err);
             })
           )
         );

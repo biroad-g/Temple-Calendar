@@ -99,6 +99,24 @@
       document.getElementById('offline-message').style.display = 'block';
     }
 
+    // Service Worker を独自登録（flutter_bootstrap.jsのSW待機処理をバイパス）
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('flutter_service_worker.js', {scope: './'})
+        .then(function(reg) {
+          console.log('[App] SW registered scope:', reg.scope);
+          // 既存のSWが待機中なら即座にアクティブ化
+          if (reg.waiting) { reg.waiting.postMessage('skipWaiting'); }
+          reg.addEventListener('updatefound', function() {
+            var sw = reg.installing;
+            if (sw) {
+              sw.addEventListener('statechange', function() {
+                if (sw.state === 'installed') { sw.postMessage('skipWaiting'); }
+              });
+            }
+          });
+        })
+        .catch(function(e) { console.warn('[App] SW registration failed:', e); });
+    }
   </script>
 
   <script src="flutter_bootstrap.js" async></script>

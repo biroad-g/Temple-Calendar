@@ -1,244 +1,157 @@
 'use strict';
-const MANIFEST = 'flutter-app-manifest';
-const TEMP = 'flutter-temp-cache';
-const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"canvaskit/chromium/canvaskit.js": "5e27aae346eee469027c80af0751d53d",
-"canvaskit/chromium/canvaskit.js.symbols": "193deaca1a1424049326d4a91ad1d88d",
-"canvaskit/chromium/canvaskit.wasm": "24c77e750a7fa6d474198905249ff506",
-"canvaskit/canvaskit.js": "140ccb7d34d0a55065fbd422b843add6",
-"canvaskit/canvaskit.js.symbols": "58832fbed59e00d2190aa295c4d70360",
-"canvaskit/canvaskit.wasm": "07b9f5853202304d3b0749d9306573cc",
-"canvaskit/skwasm.js": "1ef3ea3a0fec4569e5d531da25f34095",
-"canvaskit/skwasm.js.symbols": "0088242d10d7e7d6d2649d1fe1bda7c1",
-"canvaskit/skwasm.wasm": "264db41426307cfc7fa44b95a7772109",
-"canvaskit/skwasm_heavy.js": "413f5b2b2d9345f37de148e2544f584f",
-"canvaskit/skwasm_heavy.js.symbols": "3c01ec03b5de6d62c34e17014d1decd3",
-"canvaskit/skwasm_heavy.wasm": "8034ad26ba2485dab2fd49bdd786837b",
-"flutter.js": "888483df48293866f9f41d3d9274a779",
-"flutter_bootstrap.js": "76ba20a6842b971c03c83c6a881a2bbf",
-"index.html": "52a5dabb5fbdc2c34402b4e773dd5761",
-"/": "52a5dabb5fbdc2c34402b4e773dd5761",
-"main.dart.js": "55ab11e40b55108b2971276cc9dca6be",
-"version.json": "8c5e9d34ed9055da75848da42d1aa97b",
-"assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
-"assets/fonts/MaterialIcons-Regular.otf": "7f2cae1ee8303f6bd80ecd60f85102b9",
-"assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
-"assets/AssetManifest.json": "2efbb41d7877d10aac9d091f58ccd7b9",
-"assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
-"assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
-"assets/NOTICES": "c5fd03e91e2a22faa73708766eb49d6a",
-"assets/AssetManifest.bin.json": "69a99f98c8b1fb8111c5fb961769fcd8",
-"icons/Icon-192.png": "9b99ae1d38881d03ad518f35600cbf26",
-"icons/Icon-512.png": "9ecb76f1723aa85716c32345bd5c53a1",
-"icons/Icon-maskable-192.png": "9b99ae1d38881d03ad518f35600cbf26",
-"icons/Icon-maskable-512.png": "9ecb76f1723aa85716c32345bd5c53a1",
-"favicon.png": "3a92bbeccf48aef0d40f0130e2d36dfd",
-"manifest.json": "9c9070313dd19a3fe35e0adb591e8c3d",
-"privacy_policy.html": "7512f787c73c93736f0a9bd3e3a52ebd"};
-// The application shell files that are downloaded before a service worker can
-// start. Includes CanvasKit WASM for complete offline support.
-const CORE = [
-  "main.dart.js",
-  "index.html",
-  "flutter_bootstrap.js",
-  "flutter.js",
-  "assets/AssetManifest.bin.json",
-  "assets/FontManifest.json",
-  "assets/AssetManifest.json",
-  "assets/fonts/MaterialIcons-Regular.otf",
-  "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf",
-  "canvaskit/canvaskit.js",
-  "canvaskit/canvaskit.wasm",
-  "canvaskit/chromium/canvaskit.js",
-  "canvaskit/chromium/canvaskit.wasm",
-  "canvaskit/skwasm.js",
-  "canvaskit/skwasm.wasm",
-  "canvaskit/skwasm_heavy.js",
-  "canvaskit/skwasm_heavy.wasm",
-  "manifest.json",
-  "favicon.png"
+// キャッシュ名（バージョンを上げると古いキャッシュを破棄）
+const CACHE_VERSION = 'v3';
+const CACHE_NAME = 'temple-calendar-' + CACHE_VERSION;
+
+// このService Workerが配置されているベースURL
+// 例: https://biroad-g.github.io/Temple-Calendar/
+const SW_BASE = self.location.href.replace('flutter_service_worker.js', '');
+
+// キャッシュするファイルの相対パスリスト（SW_BASEからの相対）
+const CACHE_FILES = [
+  '',                    // index.html (ベースURL自体)
+  'index.html',
+  'flutter_bootstrap.js',
+  'flutter.js',
+  'main.dart.js',
+  'manifest.json',
+  'favicon.png',
+  'version.json',
+  'icons/Icon-192.png',
+  'icons/Icon-512.png',
+  'icons/Icon-maskable-192.png',
+  'icons/Icon-maskable-512.png',
+  'assets/AssetManifest.json',
+  'assets/AssetManifest.bin',
+  'assets/AssetManifest.bin.json',
+  'assets/FontManifest.json',
+  'assets/NOTICES',
+  'assets/shaders/ink_sparkle.frag',
+  'assets/fonts/MaterialIcons-Regular.otf',
+  'assets/packages/cupertino_icons/assets/CupertinoIcons.ttf',
+  'canvaskit/canvaskit.js',
+  'canvaskit/canvaskit.wasm',
+  'canvaskit/chromium/canvaskit.js',
+  'canvaskit/chromium/canvaskit.wasm',
+  'canvaskit/skwasm.js',
+  'canvaskit/skwasm.wasm',
+  'canvaskit/skwasm_heavy.js',
+  'canvaskit/skwasm_heavy.wasm',
 ];
 
-// During install, ALL resources are pre-cached for complete offline support.
-self.addEventListener("install", (event) => {
+// インストール時：全ファイルを事前キャッシュ
+self.addEventListener('install', (event) => {
+  console.log('[SW] Installing, base:', SW_BASE);
   self.skipWaiting();
-  return event.waitUntil(
-    caches.open(TEMP).then((cache) => {
-      // COREファイルを必須キャッシュ（失敗するとSWインストール失敗）
-      return cache.addAll(
-        CORE.map((value) => new Request(value, {'cache': 'reload'}))
-      ).then(() => {
-        // 残りのリソース（symbols等）もキャッシュ（失敗しても続行）
-        var remainingResources = Object.keys(RESOURCES).filter(
-          key => key !== '/' && !CORE.includes(key)
-        );
-        return Promise.allSettled(
-          remainingResources.map(key =>
-            cache.add(new Request(key, {'cache': 'reload'})).catch(err => {
-              console.warn('Pre-cache skipped: ' + key, err);
-            })
-          )
-        );
+
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      // 全ファイルをフルURLに変換してキャッシュ
+      const urls = CACHE_FILES.map(f => SW_BASE + f);
+      console.log('[SW] Pre-caching', urls.length, 'files');
+
+      // 重要ファイルは必須（失敗するとインストール失敗）
+      const criticalFiles = [
+        SW_BASE + '',
+        SW_BASE + 'index.html',
+        SW_BASE + 'flutter_bootstrap.js',
+        SW_BASE + 'flutter.js',
+        SW_BASE + 'main.dart.js',
+        SW_BASE + 'canvaskit/canvaskit.js',
+        SW_BASE + 'canvaskit/canvaskit.wasm',
+      ];
+
+      // 全ファイルを個別にキャッシュ（1つ失敗しても続行）
+      return Promise.allSettled(
+        urls.map(url =>
+          cache.add(new Request(url, {cache: 'reload', mode: 'cors'}))
+            .then(() => console.log('[SW] Cached:', url))
+            .catch(err => console.warn('[SW] Cache failed:', url, err.message))
+        )
+      ).then((results) => {
+        const failed = results.filter(r => r.status === 'rejected');
+        console.log('[SW] Install complete. Failed:', failed.length, '/', urls.length);
       });
     })
   );
 });
-// During activate, the cache is populated with the temp files downloaded in
-// install. If this service worker is upgrading from one with a saved
-// MANIFEST, then use this to retain unchanged resource files.
-self.addEventListener("activate", function(event) {
-  return event.waitUntil(async function() {
-    try {
-      var contentCache = await caches.open(CACHE_NAME);
-      var tempCache = await caches.open(TEMP);
-      var manifestCache = await caches.open(MANIFEST);
-      var manifest = await manifestCache.match('manifest');
-      // When there is no prior manifest, clear the entire cache.
-      if (!manifest) {
-        await caches.delete(CACHE_NAME);
-        contentCache = await caches.open(CACHE_NAME);
-        for (var request of await tempCache.keys()) {
-          var response = await tempCache.match(request);
-          await contentCache.put(request, response);
-        }
-        await caches.delete(TEMP);
-        // Save the manifest to make future upgrades efficient.
-        await manifestCache.put('manifest', new Response(JSON.stringify(RESOURCES)));
-        // Claim client to enable caching on first launch
-        self.clients.claim();
-        return;
-      }
-      var oldManifest = await manifest.json();
-      var origin = self.location.origin;
-      for (var request of await contentCache.keys()) {
-        var key = request.url.substring(origin.length + 1);
-        if (key == "") {
-          key = "/";
-        }
-        // If a resource from the old manifest is not in the new cache, or if
-        // the MD5 sum has changed, delete it. Otherwise the resource is left
-        // in the cache and can be reused by the new service worker.
-        if (!RESOURCES[key] || RESOURCES[key] != oldManifest[key]) {
-          await contentCache.delete(request);
-        }
-      }
-      // Populate the cache with the app shell TEMP files, potentially overwriting
-      // cache files preserved above.
-      for (var request of await tempCache.keys()) {
-        var response = await tempCache.match(request);
-        await contentCache.put(request, response);
-      }
-      await caches.delete(TEMP);
-      // Save the manifest to make future upgrades efficient.
-      await manifestCache.put('manifest', new Response(JSON.stringify(RESOURCES)));
-      // Claim client to enable caching on first launch
-      self.clients.claim();
-      return;
-    } catch (err) {
-      // On an unhandled exception the state of the cache cannot be guaranteed.
-      console.error('Failed to upgrade service worker: ' + err);
-      await caches.delete(CACHE_NAME);
-      await caches.delete(TEMP);
-      await caches.delete(MANIFEST);
-    }
-  }());
+
+// activate時：古いキャッシュを削除
+self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating version:', CACHE_VERSION);
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter(name => name.startsWith('temple-calendar-') && name !== CACHE_NAME)
+          .map(name => {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          })
+      );
+    }).then(() => {
+      console.log('[SW] Activated, claiming clients');
+      return self.clients.claim();
+    })
+  );
 });
-// The fetch handler redirects requests for RESOURCE files to the service
-// worker cache.
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== 'GET') {
-    return;
-  }
-  var origin = self.location.origin;
-  var key = event.request.url.substring(origin.length + 1);
-  // Redirect URLs to the index.html
-  if (key.indexOf('?v=') != -1) {
-    key = key.split('?v=')[0];
-  }
-  if (event.request.url == origin || event.request.url.startsWith(origin + '/#') || key == '') {
-    key = '/';
-  }
-  // If the URL is not the RESOURCE list then return to signal that the
-  // browser should take over.
-  if (!RESOURCES[key]) {
-    return;
-  }
-  // Offline-first: always serve from cache first, fetch only as fallback.
-  event.respondWith(caches.open(CACHE_NAME)
-    .then((cache) =>  {
-      return cache.match(event.request).then((response) => {
-        if (response) {
-          // キャッシュにあればキャッシュから返す（オフライン対応）
-          return response;
+
+// fetch時：キャッシュ優先、なければネットワーク
+self.addEventListener('fetch', (event) => {
+  const url = event.request.url;
+
+  // GETリクエスト以外は無視
+  if (event.request.method !== 'GET') return;
+
+  // このオリジン以外のリクエストは無視（外部CDN等）
+  if (!url.startsWith(self.location.origin)) return;
+
+  // SW_BASEで始まらないリクエストは無視
+  if (!url.startsWith(SW_BASE) && url !== SW_BASE.replace(/\/$/, '')) return;
+
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          // キャッシュヒット → そのまま返す
+          return cachedResponse;
         }
-        // キャッシュにない場合はネットワークから取得してキャッシュに保存
+
+        // キャッシュにない → ネットワークから取得してキャッシュに保存
         return fetch(event.request).then((networkResponse) => {
-          if (networkResponse && Boolean(networkResponse.ok)) {
+          if (networkResponse && networkResponse.ok) {
             cache.put(event.request, networkResponse.clone());
           }
           return networkResponse;
         }).catch(() => {
-          // ネットワークもキャッシュもない場合（フォールバック）
-          if (key == '/') {
-            return cache.match('index.html');
+          // オフラインでキャッシュにもない場合
+          // index.htmlにフォールバック（Flutterのルーティングのため）
+          const reqUrl = event.request.url;
+          if (reqUrl === SW_BASE || reqUrl === SW_BASE + 'index.html' ||
+              reqUrl.endsWith('/Temple-Calendar/') || reqUrl.endsWith('/Temple-Calendar')) {
+            return cache.match(SW_BASE + 'index.html')
+                || cache.match(SW_BASE);
           }
-          return new Response('', {status: 503, statusText: 'Service Unavailable'});
+          console.warn('[SW] Offline, no cache for:', reqUrl);
+          return new Response('Offline - file not cached', {
+            status: 503,
+            statusText: 'Service Unavailable'
+          });
         });
-      })
+      });
     })
   );
 });
+
+// メッセージハンドラ
 self.addEventListener('message', (event) => {
-  // SkipWaiting can be used to immediately activate a waiting service worker.
-  // This will also require a page refresh triggered by the main worker.
   if (event.data === 'skipWaiting') {
     self.skipWaiting();
-    return;
   }
-  if (event.data === 'downloadOffline') {
-    downloadOffline();
-    return;
+  if (event.data === 'getCacheStatus') {
+    caches.open(CACHE_NAME).then(cache => cache.keys()).then(keys => {
+      event.source.postMessage({type: 'cacheStatus', count: keys.length, version: CACHE_VERSION});
+    });
   }
 });
-// Download offline will check the RESOURCES for all files not in the cache
-// and populate them.
-async function downloadOffline() {
-  var resources = [];
-  var contentCache = await caches.open(CACHE_NAME);
-  var currentContent = {};
-  for (var request of await contentCache.keys()) {
-    var key = request.url.substring(origin.length + 1);
-    if (key == "") {
-      key = "/";
-    }
-    currentContent[key] = true;
-  }
-  for (var resourceKey of Object.keys(RESOURCES)) {
-    if (!currentContent[resourceKey]) {
-      resources.push(resourceKey);
-    }
-  }
-  return contentCache.addAll(resources);
-}
-// Attempt to download the resource online before falling back to
-// the offline cache.
-function onlineFirst(event) {
-  return event.respondWith(
-    fetch(event.request).then((response) => {
-      return caches.open(CACHE_NAME).then((cache) => {
-        cache.put(event.request, response.clone());
-        return response;
-      });
-    }).catch((error) => {
-      return caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(event.request).then((response) => {
-          if (response != null) {
-            return response;
-          }
-          throw error;
-        });
-      });
-    })
-  );
-}

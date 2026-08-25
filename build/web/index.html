@@ -14,7 +14,7 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="/">
+  <base href="/Temple-Calendar/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -97,6 +97,28 @@
     });
     if (!navigator.onLine) {
       document.getElementById('offline-message').style.display = 'block';
+    }
+
+    // Service Worker 登録（オフライン対応）
+    if ('serviceWorker' in navigator) {
+      // flutter_bootstrap.js より先に確実に登録する
+      navigator.serviceWorker.register('flutter_service_worker.js', {scope: './'})
+        .then(function(reg) {
+          console.log('[App] Service Worker registered, scope:', reg.scope);
+          // 新しいSWが待機中なら即座にアクティブ化
+          if (reg.waiting) { reg.waiting.postMessage('skipWaiting'); }
+          reg.addEventListener('updatefound', function() {
+            var newSW = reg.installing;
+            newSW.addEventListener('statechange', function() {
+              if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                newSW.postMessage('skipWaiting');
+              }
+            });
+          });
+        })
+        .catch(function(err) {
+          console.warn('[App] Service Worker registration failed:', err);
+        });
     }
   </script>
 

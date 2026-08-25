@@ -16,10 +16,10 @@ const RESOURCES = {"canvaskit/chromium/canvaskit.js": "5e27aae346eee469027c80af0
 "canvaskit/skwasm_heavy.js.symbols": "3c01ec03b5de6d62c34e17014d1decd3",
 "canvaskit/skwasm_heavy.wasm": "8034ad26ba2485dab2fd49bdd786837b",
 "flutter.js": "888483df48293866f9f41d3d9274a779",
-"flutter_bootstrap.js": "775c6eb6f63a1d731bcd831e523d554d",
-"index.html": "1b80385677e64ace7dfdc9d82c615e78",
-"/": "1b80385677e64ace7dfdc9d82c615e78",
-"main.dart.js": "4538569d8e15abb100f3339aa8bc1b32",
+"flutter_bootstrap.js": "76ba20a6842b971c03c83c6a881a2bbf",
+"index.html": "52a5dabb5fbdc2c34402b4e773dd5761",
+"/": "52a5dabb5fbdc2c34402b4e773dd5761",
+"main.dart.js": "55ab11e40b55108b2971276cc9dca6be",
 "version.json": "8c5e9d34ed9055da75848da42d1aa97b",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
 "assets/fonts/MaterialIcons-Regular.otf": "7f2cae1ee8303f6bd80ecd60f85102b9",
@@ -34,7 +34,7 @@ const RESOURCES = {"canvaskit/chromium/canvaskit.js": "5e27aae346eee469027c80af0
 "icons/Icon-maskable-192.png": "9b99ae1d38881d03ad518f35600cbf26",
 "icons/Icon-maskable-512.png": "9ecb76f1723aa85716c32345bd5c53a1",
 "favicon.png": "3a92bbeccf48aef0d40f0130e2d36dfd",
-"manifest.json": "dd95dc56e9694fa2deb639efca6f9946",
+"manifest.json": "9c9070313dd19a3fe35e0adb591e8c3d",
 "privacy_policy.html": "7512f787c73c93736f0a9bd3e3a52ebd"};
 // The application shell files that are downloaded before a service worker can
 // start.
@@ -44,13 +44,28 @@ const CORE = ["main.dart.js",
 "assets/AssetManifest.bin.json",
 "assets/FontManifest.json"];
 
-// During install, the TEMP cache is populated with the application shell files.
+// During install, the TEMP cache is populated with ALL application files
+// for complete offline-first support.
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
+      // まずCOREファイルをキャッシュ
       return cache.addAll(
-        CORE.map((value) => new Request(value, {'cache': 'reload'})));
+        CORE.map((value) => new Request(value, {'cache': 'reload'}))
+      ).then(() => {
+        // 続いて全リソースを事前キャッシュ（オフライン完全対応）
+        var allResources = Object.keys(RESOURCES).filter(
+          key => key !== '/' && !CORE.includes(key)
+        );
+        return Promise.allSettled(
+          allResources.map(key =>
+            cache.add(new Request(key, {'cache': 'reload'})).catch(err => {
+              console.warn('Pre-cache failed for: ' + key, err);
+            })
+          )
+        );
+      });
     })
   );
 });
@@ -134,20 +149,26 @@ self.addEventListener("fetch", (event) => {
   if (!RESOURCES[key]) {
     return;
   }
-  // If the URL is the index.html, perform an online-first request.
-  if (key == '/') {
-    return onlineFirst(event);
-  }
+  // Offline-first: always serve from cache first, fetch only as fallback.
   event.respondWith(caches.open(CACHE_NAME)
     .then((cache) =>  {
       return cache.match(event.request).then((response) => {
-        // Either respond with the cached resource, or perform a fetch and
-        // lazily populate the cache only if the resource was successfully fetched.
-        return response || fetch(event.request).then((response) => {
-          if (response && Boolean(response.ok)) {
-            cache.put(event.request, response.clone());
-          }
+        if (response) {
+          // キャッシュにあればキャッシュから返す（オフライン対応）
           return response;
+        }
+        // キャッシュにない場合はネットワークから取得してキャッシュに保存
+        return fetch(event.request).then((networkResponse) => {
+          if (networkResponse && Boolean(networkResponse.ok)) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {
+          // ネットワークもキャッシュもない場合（フォールバック）
+          if (key == '/') {
+            return cache.match('index.html');
+          }
+          return new Response('', {status: 503, statusText: 'Service Unavailable'});
         });
       })
     })

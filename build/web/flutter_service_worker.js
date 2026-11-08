@@ -9,7 +9,7 @@
 //   - デバッグログを強化
 // ============================================================
 
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const CACHE_NAME = 'temple-calendar-' + CACHE_VERSION;
 
 // SW 自身の URL からベースパスを計算

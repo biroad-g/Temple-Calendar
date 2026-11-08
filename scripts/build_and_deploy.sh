@@ -179,7 +179,7 @@ restore_custom_sw() {
     error "SW テンプレートが見つかりません: $SW_TEMPLATE"
   fi
   cp "$SW_TEMPLATE" "$dest_dir/flutter_service_worker.js"
-  success "カスタム SW v4 を復元: $dest_dir/flutter_service_worker.js"
+  success "カスタム SW を復元（テンプレートのバージョン）: $dest_dir/flutter_service_worker.js"
 }
 
 # =============================================================================
@@ -218,14 +218,17 @@ deploy_gh_pages() {
   git worktree add "$GH_PAGES_WORKTREE" gh-pages
   info "gh-pages worktree 作成: $GH_PAGES_WORKTREE"
 
-  # GitHub Pages用ファイルをコピー（base href だけ書き換え）
-  info "ファイルをコピー中..."
-  # flutter_bootstrap.js / flutter_service_worker.js はそのままコピー
-  cp "$BUILD_DIR/flutter_bootstrap.js"      "$GH_PAGES_WORKTREE/"
-  cp "$BUILD_DIR/flutter_service_worker.js" "$GH_PAGES_WORKTREE/"
+  # GitHub Pages用: build/web 全体を同期（main.dart.js 等のアプリ本体も含む）
+  # .git は残し、それ以外を build/web の内容で置き換える
+  info "build/web 全体を gh-pages に同期中..."
+  # rsync が無い環境でも動くよう find + cp で同期する
+  find "$GH_PAGES_WORKTREE" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+  cp -a "$BUILD_DIR/." "$GH_PAGES_WORKTREE/"
+  rm -f "$GH_PAGES_WORKTREE/offline_server.py"
+  touch "$GH_PAGES_WORKTREE/.nojekyll"
   # index.html は base href を /Temple-Calendar/ に変換
-  sed "s|<base href=\"${LOCAL_BASE_HREF}\">|<base href=\"${GH_PAGES_BASE_HREF}\">|" \
-    "$BUILD_DIR/index.html" > "$GH_PAGES_WORKTREE/index.html"
+  sed -i "s|<base href=\"${LOCAL_BASE_HREF}\">|<base href=\"${GH_PAGES_BASE_HREF}\">|" \
+    "$GH_PAGES_WORKTREE/index.html"
 
   # base href の確認
   local actual_href
@@ -233,7 +236,7 @@ deploy_gh_pages() {
   info "gh-pages index.html: $actual_href"
 
   cd "$GH_PAGES_WORKTREE"
-  git add flutter_bootstrap.js flutter_service_worker.js index.html
+  git add -A
 
   # 変更がある場合のみコミット
   if git diff --cached --quiet; then
@@ -265,11 +268,8 @@ push_main() {
   step "main ブランチへコミット＆プッシュ"
   cd "$PROJECT_DIR"
 
-  git add -f \
-    build/web/flutter_bootstrap.js \
-    build/web/index.html \
-    build/web/flutter_service_worker.js \
-    build/web/.last_build_id 2>/dev/null || true
+  git add -A lib test scripts pubspec.yaml 2>/dev/null || true
+  git add -f build/web 2>/dev/null || true
 
   if git diff --cached --quiet; then
     info "main: 変更なし。コミットをスキップ"

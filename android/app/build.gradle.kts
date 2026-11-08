@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.templecalendar.coyomi.calendar"
+    namespace = "com.templecalendar.calendar"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.templecalendar.coyomi.calendar"
+        applicationId = "com.templecalendar.calendar"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -63,3 +63,4 @@ android {
 flutter {
     source = "../.."
 }
+

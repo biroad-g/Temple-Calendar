@@ -268,7 +268,7 @@ push_main() {
   step "main ブランチへコミット＆プッシュ"
   cd "$PROJECT_DIR"
 
-  git add -A lib test scripts pubspec.yaml 2>/dev/null || true
+  git add -A lib test scripts assets pubspec.yaml 2>/dev/null || true
   git add -f build/web 2>/dev/null || true
 
   if git diff --cached --quiet; then

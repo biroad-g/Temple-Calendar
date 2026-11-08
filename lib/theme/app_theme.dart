@@ -27,6 +27,7 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'NotoSansJP',
       brightness: Brightness.dark,
       scaffoldBackgroundColor: navyDark,
       colorScheme: const ColorScheme.dark(

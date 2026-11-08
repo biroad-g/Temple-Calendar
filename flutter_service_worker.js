@@ -9,7 +9,7 @@
 //   - デバッグログを強化
 // ============================================================
 
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const CACHE_NAME = 'temple-calendar-' + CACHE_VERSION;
 
 // SW 自身の URL からベースパスを計算
@@ -34,6 +34,8 @@ const ALL_FILES = [
   SW_BASE + 'assets/FontManifest.json',
   SW_BASE + 'assets/NOTICES',
   SW_BASE + 'assets/fonts/MaterialIcons-Regular.otf',
+  SW_BASE + 'assets/assets/fonts/NotoSansJP-Regular.otf',
+  SW_BASE + 'assets/assets/fonts/NotoSansJP-Bold.otf',
   SW_BASE + 'assets/packages/cupertino_icons/assets/CupertinoIcons.ttf',
   SW_BASE + 'assets/shaders/ink_sparkle.frag',
   // アイコン
